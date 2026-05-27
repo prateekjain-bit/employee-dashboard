@@ -1,1 +1,178 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Employee Dashboard</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+
+<!-- LOADER -->
+
+<div id="loading" class="loading hidden">
+  <div class="spinner"></div>
+</div>
+
+<!-- LOGIN PAGE -->
+
+<div id="loginPage" class="flex items-center justify-center min-h-screen">
+
+  <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+
+    <h1 class="text-2xl font-bold mb-6 text-center">
+      Employee Login
+    </h1>
+
+    <input
+      type="email"
+      id="email"
+      placeholder="Enter Email"
+      class="w-full border p-3 rounded mb-4"
+    >
+
+    <input
+      type="password"
+      id="password"
+      placeholder="Enter Password"
+      class="w-full border p-3 rounded mb-4"
+    >
+
+    <button
+      onclick="login()"
+      class="w-full bg-blue-600 text-white p-3 rounded"
+    >
+      Login
+    </button>
+
+    <p id="loginError" class="text-red-500 mt-3"></p>
+
+  </div>
+
+</div>
+
+<!-- DASHBOARD -->
+
+<div id="dashboardPage" class="hidden">
+
+  <!-- NAVBAR -->
+
+  <nav class="bg-blue-600 text-white p-4 shadow">
+
+    <div class="container mx-auto flex justify-between">
+
+      <div class="flex items-center">
+
+        <img
+          src="assets/logo.png"
+          class="w-10 h-10 rounded-full mr-3"
+        >
+
+        <h1 class="font-bold text-xl">
+          Employee Dashboard
+        </h1>
+
+      </div>
+
+      <div>
+
+        <button
+          onclick="logout()"
+          class="bg-red-500 px-4 py-2 rounded"
+        >
+          Logout
+        </button>
+
+      </div>
+
+    </div>
+
+  </nav>
+
+  <!-- MAIN -->
+
+  <div class="container mx-auto p-6">
+
+    <!-- PROFILE -->
+
+    <div class="bg-white p-6 rounded shadow mb-6">
+
+      <div class="flex items-center">
+
+        <img
+          src="assets/avatar.png"
+          class="w-24 h-24 rounded-full mr-5"
+        >
+
+        <div>
+
+          <h2
+            id="employeeName"
+            class="text-3xl font-bold"
+          >
+          </h2>
+
+          <p id="employeePosition"></p>
+
+          <p id="employeeDepartment"></p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- STATS -->
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+
+      <div class="bg-white p-5 rounded shadow">
+        <p class="text-gray-500">Tasks</p>
+        <h3 id="taskCount" class="text-3xl font-bold">0</h3>
+      </div>
+
+      <div class="bg-white p-5 rounded shadow">
+        <p class="text-gray-500">Attendance</p>
+        <h3 id="attendanceRate" class="text-3xl font-bold">0%</h3>
+      </div>
+
+      <div class="bg-white p-5 rounded shadow">
+        <p class="text-gray-500">Work Hours</p>
+        <h3 id="workHours" class="text-3xl font-bold">0</h3>
+      </div>
+
+    </div>
+
+    <!-- TASKS -->
+
+    <div>
+
+      <h2 class="text-2xl font-bold mb-4">
+        My Tasks
+      </h2>
+
+      <div
+        id="tasksContainer"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+      >
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
