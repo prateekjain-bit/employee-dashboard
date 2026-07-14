@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Material Indent Form</title>
+<style>
+  :root{
+    --brand:#0f6b53;
+    --brand-dark:#0a4d3c;
+    --bg:#f4f6f5;
+    --card:#ffffff;
+    --border:#dfe4e2;
+    --text:#1c2624;
+    --muted:#6b7674;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    padding-bottom:100px;
+  }
+  header{
+    background:var(--brand-dark);
+    color:#fff;
+    padding:18px 20px;
+    position:sticky;
+    top:0;
+    z-index:10;
+  }
+  header h1{margin:0;font-size:1.2rem;font-weight:600;}
+  header .sub{font-size:.8rem;opacity:.8;margin-top:2px;}
+  .wrap{max-width:720px;margin:0 auto;padding:16px;}
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:16px;
+    margin-bottom:16px;
+  }
+  .card h2{font-size:1rem;margin:0 0 12px;color:var(--brand-dark);}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .field{margin-bottom:12px;}
+  .field label{display:block;font-size:.78rem;color:var(--muted);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.02em;}
+  .field input,.field select{
+    width:100%;padding:10px 10px;border:1px solid var(--border);
+    border-radius:8px;font-size:.95rem;background:#fff;color:var(--text);
+  }
+  .field input:focus,.field select:focus{outline:2px solid var(--brand);border-color:var(--brand);}
+  .auto{background:#eef4f2;color:var(--muted);}
+  .item-card{
+    border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px;
+    background:#fbfdfc;position:relative;
+  }
+  .item-card .item-header{
+    display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;
+  }
+  .item-header span{font-weight:700;color:var(--brand-dark);font-size:.85rem;}
+  .remove-btn{
+    background:none;border:none;color:#c0392b;font-size:.8rem;cursor:pointer;font-weight:600;
+  }
+  .img-row{display:flex;align-items:center;gap:12px;}
+  .img-preview{
+    width:64px;height:64px;border-radius:8px;object-fit:cover;border:1px solid var(--border);
+    background:#eee;display:none;
+  }
+  .camera-btn{
+    display:inline-block;padding:9px 14px;border-radius:8px;border:1px dashed var(--brand);
+    color:var(--brand-dark);font-size:.85rem;cursor:pointer;background:#fff;
+  }
+  .camera-btn.retake{border-style:solid;}
+  .camera-modal{
+    display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:100;
+    flex-direction:column;align-items:center;justify-content:center;padding:16px;
+  }
+  .camera-modal.open{display:flex;}
+  .camera-modal video, .camera-modal canvas{
+    width:100%;max-width:480px;border-radius:12px;background:#000;
+  }
+  .camera-modal canvas{display:none;}
+  .camera-controls{
+    display:flex;gap:14px;margin-top:16px;width:100%;max-width:480px;
+  }
+  .camera-controls button{
+    flex:1;padding:14px;border-radius:10px;border:none;font-size:.95rem;font-weight:700;cursor:pointer;
+  }
+  .cam-shoot{background:var(--brand);color:#fff;}
+  .cam-retake{background:#fff;color:var(--brand-dark);display:none;}
+  .cam-use{background:var(--brand);color:#fff;display:none;}
+  .cam-cancel{background:#3a3a3a;color:#fff;}
+  .camera-hint{color:#fff;opacity:.75;font-size:.8rem;margin-top:10px;text-align:center;}
+  .add-item-btn{
+    width:100%;padding:12px;border-radius:10px;border:2px dashed var(--brand);
+    background:#fff;color:var(--brand-dark);font-weight:600;cursor:pointer;font-size:.9rem;
+  }
+  .footer-bar{
+    position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);
+    padding:12px 16px;display:flex;gap:10px;justify-content:center;
+  }
+  .footer-bar .inner{max-width:720px;width:100%;display:flex;gap:10px;}
+  .submit-btn{
+    flex:1;padding:14px;background:var(--brand);color:#fff;border:none;border-radius:10px;
+    font-size:1rem;font-weight:700;cursor:pointer;
+  }
+  .submit-btn:disabled{background:#9fb8b1;cursor:not-allowed;}
+  .status{
+    max-width:720px;margin:10px auto;padding:10px 14px;border-radius:8px;font-size:.85rem;display:none;
+  }
+  .status.ok{background:#e4f7ec;color:#146c43;display:block;}
+  .status.err{background:#fdecea;color:#b02a1e;display:block;}
+  @media (max-width:520px){ .grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Material Indent / Request Form</h1>
+  <div class="sub">Indent No: <span id="indentNoDisplay">…</span></div>
+</header>
+
+<div class="wrap">
+
+  <div class="card">
+    <h2>Indent Details</h2>
+    <div class="grid">
+      <div class="field">
+        <label>Date</label>
+        <input type="date" id="date">
+      </div>
+      <div class="field">
+        <label>Sales Man</label>
+        <select id="salesMan"><option value="">Loading…</option></select>
+      </div>
+    </div>
+  </div>
+
+  <div id="itemsContainer"></div>
+
+  <button class="add-item-btn" id="addItemBtn" type="button">+ Add Item</button>
+
+</div>
+
+<div class="status" id="status"></div>
+
+<div class="footer-bar">
+  <div class="inner">
+    <button class="submit-btn" id="submitBtn">Submit Indent</button>
+  </div>
+</div>
+
+<!-- Template for one item row -->
+<template id="itemTemplate">
+  <div class="item-card">
+    <div class="item-header">
+      <span class="item-label">Item #1</span>
+      <button type="button" class="remove-btn">Remove</button>
+    </div>
+    <div class="grid">
+      <div class="field"><label>Item</label>
+        <select data-key="item"><option value="">Select…</option></select></div>
+      <div class="field"><label>Category</label>
+        <select data-key="category"><option value="">Select…</option></select></div>
+      <div class="field"><label>Purity</label>
+        <select data-key="purity"><option value="">Select…</option></select></div>
+      <div class="field"><label>Design/Quality</label>
+        <select data-key="designQuality"><option value="">Select…</option></select></div>
+      <div class="field"><label>Shape</label>
+        <select data-key="shape"><option value="">Select…</option></select></div>
+      <div class="field"><label>Size</label>
+        <input type="text" data-key="size" placeholder="e.g. SMALL"></div>
+      <div class="field"><label>Weight</label>
+        <input type="number" step="0.01" data-key="wt" placeholder="e.g. 1.5"></div>
+      <div class="field"><label>Qty</label>
+        <input type="number" data-key="qty" placeholder="e.g. 2"></div>
+    </div>
+    <div class="field"><label>Vendor Suggestion</label>
+      <input type="text" data-key="vendorSuggestion" placeholder="e.g. saga ji"></div>
+    <div class="field">
+      <label>Live Photo</label>
+      <div class="img-row">
+        <button type="button" class="camera-btn" data-action="open-camera">📷 Take Photo</button>
+        <img class="img-preview">
+      </div>
+    </div>
+  </div>
+</template>
+
+<!-- Live camera modal (shared by all item rows, one stream at a time) -->
+<div class="camera-modal" id="cameraModal">
+  <video id="camVideo" autoplay playsinline muted></video>
+  <canvas id="camCanvas"></canvas>
+  <div class="camera-controls">
+    <button type="button" class="cam-cancel" id="camCancel">Cancel</button>
+    <button type="button" class="cam-shoot" id="camShoot">Capture</button>
+    <button type="button" class="cam-retake" id="camRetake">Retake</button>
+    <button type="button" class="cam-use" id="camUse">Use Photo</button>
+  </div>
+  <div class="camera-hint">Point the camera at the item, then tap Capture.</div>
+</div>
+
+<script>
+// ====== CONFIG - EDIT THIS ======
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwgkQhk-I64le9WF3oW8y_lMKBGQR1aQIhpV8aI3nvUvWfUPIYPNQx2zfUlSKSqyyxGPA/exec';
+// =================================
+
+const DROPDOWN_KEYS = ['salesMan','item','category','purity','designQuality','shape'];
+// Maps our internal keys to the column headers you use in the "Lists" sheet tab.
+const LIST_HEADER_MAP = {
+  salesMan: 'SALES MAN',
+  item: 'ITEM',
+  category: 'CATEFORY',
+  purity: 'PURITY',
+  designQuality: 'DESIGN/QUALITY',
+  shape: 'SHAPE'
+};
+
+let dropdownData = {};
+let indentNo = null;
+let itemCount = 0;
+
+const itemsContainer = document.getElementById('itemsContainer');
+const template = document.getElementById('itemTemplate');
+const statusBox = document.getElementById('status');
+
+function todayStr(){
+  const d = new Date();
+  return d.toISOString().slice(0,10);
+}
+document.getElementById('date').value = todayStr();
+
+function showStatus(msg, ok){
+  statusBox.textContent = msg;
+  statusBox.className = 'status ' + (ok ? 'ok' : 'err');
+  setTimeout(()=>{ statusBox.className='status'; }, 4000);
+}
+
+async function init(){
+  try{
+    const [dd, ni] = await Promise.all([
+      fetch(APPS_SCRIPT_URL + '?action=getDropdowns').then(r=>r.json()),
+      fetch(APPS_SCRIPT_URL + '?action=nextIndentNo').then(r=>r.json())
+    ]);
+    dropdownData = dd;
+    indentNo = ni.indentNo;
+    document.getElementById('indentNoDisplay').textContent = indentNo;
+    populateSelect(document.getElementById('salesMan'), LIST_HEADER_MAP.salesMan);
+    addItem();
+  }catch(err){
+    showStatus('Could not load dropdown data. Check APPS_SCRIPT_URL.', false);
+  }
+}
+
+function populateSelect(selectEl, headerName){
+  selectEl.innerHTML = '<option value="">Select…</option>';
+  const opts = dropdownData[headerName] || [];
+  opts.forEach(v=>{
+    const o = document.createElement('option');
+    o.value = v; o.textContent = v;
+    selectEl.appendChild(o);
+  });
+}
+
+function addItem(){
+  itemCount++;
+  const node = template.content.cloneNode(true);
+  const card = node.querySelector('.item-card');
+  card.dataset.index = itemCount;
+  node.querySelector('.item-label').textContent = 'Item #' + itemCount;
+
+  ['item','category','purity','designQuality','shape'].forEach(key=>{
+    const sel = card.querySelector('select[data-key="'+key+'"]');
+    populateSelect(sel, LIST_HEADER_MAP[key]);
+  });
+
+  const preview = card.querySelector('.img-preview');
+  card.querySelector('[data-action="open-camera"]').addEventListener('click', ()=>{
+    openCamera(card, preview);
+  });
+
+  card.querySelector('.remove-btn').addEventListener('click', ()=>{
+    card.remove();
+  });
+
+  itemsContainer.appendChild(card);
+}
+
+document.getElementById('addItemBtn').addEventListener('click', addItem);
+
+// ---------- Live camera (video tag) ----------
+const cameraModal = document.getElementById('cameraModal');
+const camVideo = document.getElementById('camVideo');
+const camCanvas = document.getElementById('camCanvas');
+const camShoot = document.getElementById('camShoot');
+const camRetake = document.getElementById('camRetake');
+const camUse = document.getElementById('camUse');
+const camCancel = document.getElementById('camCancel');
+
+let camStream = null;
+let activeCard = null;
+let activePreview = null;
+let capturedDataUrl = null;
+
+async function openCamera(card, preview){
+  activeCard = card;
+  activePreview = preview;
+  capturedDataUrl = null;
+  cameraModal.classList.add('open');
+  resetCameraButtons();
+  try{
+    camStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' } },
+      audio: false
+    });
+    camVideo.srcObject = camStream;
+    camVideo.style.display = 'block';
+    camCanvas.style.display = 'none';
+  }catch(err){
+    showStatus('Camera access denied or unavailable.', false);
+    closeCamera();
+  }
+}
+
+function resetCameraButtons(){
+  camShoot.style.display = 'inline-block';
+  camRetake.style.display = 'none';
+  camUse.style.display = 'none';
+}
+
+camShoot.addEventListener('click', ()=>{
+  const w = camVideo.videoWidth, h = camVideo.videoHeight;
+  camCanvas.width = w; camCanvas.height = h;
+  camCanvas.getContext('2d').drawImage(camVideo, 0, 0, w, h);
+  capturedDataUrl = camCanvas.toDataURL('image/jpeg', 0.85);
+  camVideo.style.display = 'none';
+  camCanvas.style.display = 'block';
+  camShoot.style.display = 'none';
+  camRetake.style.display = 'inline-block';
+  camUse.style.display = 'inline-block';
+});
+
+camRetake.addEventListener('click', ()=>{
+  capturedDataUrl = null;
+  camVideo.style.display = 'block';
+  camCanvas.style.display = 'none';
+  resetCameraButtons();
+});
+
+camUse.addEventListener('click', ()=>{
+  if(activeCard && capturedDataUrl){
+    activeCard.dataset.imageBase64 = capturedDataUrl;
+    activePreview.src = capturedDataUrl;
+    activePreview.style.display = 'block';
+  }
+  closeCamera();
+});
+
+camCancel.addEventListener('click', closeCamera);
+
+function closeCamera(){
+  if(camStream){
+    camStream.getTracks().forEach(t=>t.stop());
+    camStream = null;
+  }
+  cameraModal.classList.remove('open');
+  activeCard = null;
+  activePreview = null;
+  capturedDataUrl = null;
+}
+// ----------------------------------------------
+
+function collectItem(card){
+  const data = {};
+  card.querySelectorAll('[data-key]').forEach(el=>{
+    data[el.dataset.key] = el.value;
+  });
+  data.image = card.dataset.imageBase64 || '';
+  return data;
+}
+
+async function submitAll(){
+  const cards = itemsContainer.querySelectorAll('.item-card');
+  if(cards.length === 0){ showStatus('Add at least one item.', false); return; }
+  const date = document.getElementById('date').value;
+  const salesMan = document.getElementById('salesMan').value;
+  if(!salesMan){ showStatus('Select a Sales Man.', false); return; }
+
+  const submitBtn = document.getElementById('submitBtn');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Submitting…';
+
+  let okCount = 0;
+  for(const card of cards){
+    const item = collectItem(card);
+    const payload = {
+      indentNo, date, salesMan,
+      item: item.item, category: item.category, purity: item.purity,
+      designQuality: item.designQuality, size: item.size, wt: item.wt,
+      shape: item.shape, qty: item.qty, vendorSuggestion: item.vendorSuggestion,
+      imageBase64: item.image
+    };
+    try{
+      const res = await fetch(APPS_SCRIPT_URL, {
+        method:'POST',
+        headers:{'Content-Type':'text/plain;charset=utf-8'}, // avoids CORS preflight
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if(json.success) okCount++;
+    }catch(err){ /* continue with other items */ }
+  }
+
+  submitBtn.disabled = false;
+  submitBtn.textContent = 'Submit Indent';
+
+  if(okCount === cards.length){
+    showStatus('Saved ' + okCount + ' item(s) under Indent No ' + indentNo + '.', true);
+    itemsContainer.innerHTML = '';
+    itemCount = 0;
+    // fetch a fresh indent number for the next batch
+    const ni = await fetch(APPS_SCRIPT_URL + '?action=nextIndentNo').then(r=>r.json());
+    indentNo = ni.indentNo;
+    document.getElementById('indentNoDisplay').textContent = indentNo;
+    addItem();
+  } else {
+    showStatus('Saved ' + okCount + '/' + cards.length + ' items. Check connection and retry failed ones.', false);
+  }
+}
+
+document.getElementById('submitBtn').addEventListener('click', submitAll);
+
+init();
+</script>
+</body>
+</html>
